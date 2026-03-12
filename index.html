@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#030712"/>
+<title>MBTracker Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"><\/script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"><\/script>
+<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"><\/script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#030712;color:#f1f5f9;font-family:'DM Mono','Courier New',monospace;min-height:100vh}
+.sans{font-family:'DM Sans',system-ui,sans-serif}
+input,select,button{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:#111827}
+::-webkit-scrollbar-thumb{background:#374151;border-radius:3px}
+input[type=color]{border:none;padding:0;cursor:pointer;width:36px;height:30px;border-radius:4px}
+.fade{animation:fi 0.15s ease-in}
+@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.card{background:#111827;border:1px solid #1f2937;border-radius:12px}
+.card-click{cursor:pointer;transition:border-color 0.15s}
+.card-click:hover{border-color:#374151}
+.btn{display:inline-flex;align-items:center;gap:6px;font-weight:500;border-radius:8px;border:1px solid;transition:all 0.15s;cursor:pointer;font-size:13px;padding:7px 14px}
+.btn-sm{font-size:11px;padding:5px 10px}
+.btn-p{background:#7c3aed;border-color:#7c3aed;color:#fff}.btn-p:hover{background:#6d28d9}
+.btn-s{background:#1f2937;border-color:#374151;color:#e5e7eb}.btn-s:hover{background:#374151}
+.btn-d{background:#450a0a;border-color:#7f1d1d;color:#f87171}.btn-d:hover{background:#7f1d1d}
+.btn-ok{background:#052e16;border-color:#14532d;color:#4ade80}.btn-ok:hover{background:#14532d}
+.btn-g{background:transparent;border-color:transparent;color:#9ca3af}.btn-g:hover{background:#1f2937}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+input[type=text],input[type=number],input[type=date],select{background:#1f2937;border:1px solid #374151;border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;width:100%;outline:none;transition:border-color 0.15s}
+input:focus,select:focus{border-color:#7c3aed}
+select option{background:#1f2937}
+.lbl{display:block;font-size:11px;color:#9ca3af;margin-bottom:4px;font-family:'DM Sans',system-ui,sans-serif}
+.moverlay{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:20px 12px;background:rgba(0,0,0,0.85)}
+.mdialog{background:#111827;border:1px solid #374151;border-radius:16px;width:100%;max-height:90vh;overflow-y:auto}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #1f2937;position:sticky;top:0;background:#111827;z-index:5}
+.mbody{padding:16px}
+.bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;border:1px solid;font-family:'DM Sans',system-ui,sans-serif}
+.bdg-g{background:#052e16;color:#4ade80;border-color:#14532d}
+.bdg-r{background:#450a0a;color:#f87171;border-color:#7f1d1d}
+.bdg-y{background:#422006;color:#fbbf24;border-color:#92400e}
+.bdg-v{background:#2e1065;color:#c084fc;border-color:#4c1d95}
+.bdg-gr{background:#1f2937;color:#9ca3af;border-color:#374151}
+.ap{color:#4ade80;font-family:'DM Mono',monospace}
+.an{color:#f87171;font-family:'DM Mono',monospace}
+.az{color:#6b7280;font-family:'DM Mono',monospace}
+.nav-top{border-bottom:1px solid #1f2937;background:#030712;position:sticky;top:0;z-index:40}
+.ntinner{max-width:1200px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.ndesk{display:none}
+.nmob{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:40;background:#030712;border-top:1px solid #1f2937;padding-bottom:env(safe-area-inset-bottom)}
+.nmb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 2px;font-size:10px;color:#6b7280;border:none;background:transparent;cursor:pointer;transition:color 0.15s;position:relative;font-family:'DM Sans',system-ui,sans-serif}
+.nmb.act{color:#a78bfa}
+.ndb{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;color:#9ca3af;border:none;background:transparent;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',system-ui,sans-serif;position:relative}
+.ndb:hover{background:#1f2937;color:#e5e7eb}
+.ndb.act{background:#1f2937;color:#fff}
+.nbdot{position:absolute;top:-2px;right:-2px;background:#fbbf24;color:#000;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.main{max-width:1200px;margin:0 auto;padding:16px;padding-bottom:90px}
+@media(min-width:768px){.ndesk{display:flex;align-items:center;gap:4px}.nmob{display:none}.main{padding:24px;padding-bottom:32px}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(min-width:640px){.g4{grid-template-columns:1fr 1fr 1fr 1fr}}
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(min-width:640px){.ag{grid-template-columns:1fr 1fr 1fr}}
+.sp2>*+*{margin-top:8px}.sp3>*+*{margin-top:12px}.sp4>*+*{margin-top:16px}.sp5>*+*{margin-top:20px}
+.twrap{overflow-x:auto}
+table{width:100%;font-size:12px;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #1f2937;font-weight:500;font-family:'DM Sans',system-ui,sans-serif}
+td{padding:9px 12px;border-bottom:1px solid rgba(31,41,55,0.5)}
+tr:hover td{background:rgba(31,41,55,0.4)}
+tr:last-child td{border-bottom:none}
+.cs2{grid-column:span 2}
+.fl{display:flex}.aic{align-items:center}.jb{justify-content:space-between}.fw{flex-wrap:wrap}.g1{gap:4px}.gap2{gap:8px}.gap3{gap:12px}
+.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.si{display:flex;align-items:center;gap:5px;font-size:11px;font-family:'DM Sans',system-ui,sans-serif}
+.altl{display:flex;flex-direction:column;gap:16px}
+@media(min-width:1024px){.altl{flex-direction:row}}
+.asb{flex-shrink:0}
+@media(min-width:1024px){.asb{width:200px}}
+.ai{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;transition:background 0.15s;border:1px solid transparent}
+.ai:hover{background:#1f2937}
+.ai.act{background:#1f2937;border-color:#374151}
+.bg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:640px){.bg{grid-template-columns:repeat(6,1fr)}}
+.cr{background:#1f2937;border-radius:10px;padding:14px;text-align:center}
+.tbr{display:flex;gap:4px;background:#1f2937;border-radius:8px;padding:4px;width:fit-content}
+.tbb{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:500;border:none;cursor:pointer;color:#9ca3af;background:transparent;font-family:'DM Sans',system-ui,sans-serif}
+.tbb.act{background:#374151;color:#fff}
+.fb{display:flex;gap:4px;background:#1f2937;border-radius:8px;padding:4px}
+.fbb{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;border:none;cursor:pointer;color:#9ca3af;background:transparent;text-transform:capitalize;font-family:'DM Sans',system-ui,sans-serif}
+.fbb.act{background:#374151;color:#fff}
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sb{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;border-radius:10px;border:1px solid;cursor:pointer;transition:all 0.15s}
+.sw{background:#052e16;border-color:#14532d;color:#4ade80}.sw:hover{background:#14532d}
+.sl{background:#450a0a;border-color:#7f1d1d;color:#f87171}.sl:hover{background:#7f1d1d}
+.sv{background:#1f2937;border-color:#374151;color:#9ca3af}.sv:hover{background:#374151}
+.cbr{display:flex;align-items:center;gap:8px}
+.rrow{display:flex;gap:16px;flex-wrap:wrap}
+.rl{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#d1d5db;font-family:'DM Sans',system-ui,sans-serif}
+input[type=checkbox]{width:16px;height:16px;accent-color:#7c3aed}
+input[type=radio]{width:14px;height:14px;accent-color:#7c3aed}
+.wbox{background:#422006;border:1px solid #92400e;border-radius:10px;padding:14px}
+.ibox{background:#2e1065;border:1px solid #4c1d95;border-radius:10px;padding:14px;text-align:center}
+.snote{background:#111827;border:1px solid #1f2937;border-radius:8px;padding:12px;font-size:12px;color:#9ca3af;font-family:'DM Sans',system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var R=React,RD=ReactDOM,RC=Recharts;
+var h=R.createElement,useState=R.useState,useMemo=R.useMemo,useEffect=R.useEffect,useRef=R.useRef;
+var AreaChart=RC.AreaChart,Area=RC.Area,XAxis=RC.XAxis,YAxis=RC.YAxis,CartesianGrid=RC.CartesianGrid,Tooltip=RC.Tooltip,ResponsiveContainer=RC.ResponsiveContainer,ReferenceLine=RC.ReferenceLine;
+
+var SK='mbtracker_v2';
+function loadSt(){try{var r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}return null;}
+function saveSt(s){try{localStorage.setItem(SK,JSON.stringify(s));}catch(e){}}
+
+function fmt(v,c){c=c||'£';return(v<0?'-':'')+c+Math.abs(v).toFixed(2);}
+function fmtPct(v){return(v>=0?'+':'')+v.toFixed(2)+'%';}
+function uid(){return Math.random().toString(36).slice(2,10);}
+function today(){return new Date().toISOString().slice(0,10);}
+
+function calcLay(bo,lo,bs,comm,isFree,snr){
+  isFree=!!isFree;snr=snr!==false;
+  var c=comm/100;
+  var ls=isFree&&snr?(bo*bs)/(lo-c):isFree&&!snr?((bo-1)*bs)/(lo-1+c):(bo*bs)/(lo-c);
+  var ll=ls*(lo-1);
+  var bw=isFree?(snr?(bo-1)*bs:bo*bs):bo*bs-bs;
+  var lw=ls*(1-c);
+  var ql=isFree?-(bw-lw):-(bs-lw);
+  return{layStake:+ls.toFixed(2),layLiability:+ll.toFixed(2),qualLoss:+ql.toFixed(2)};
+}
+function calcEW(bo,lo,ewp,bs,c){
+  var po=(bo-1)/ewp+1,plo=(lo-1)/ewp+1;
+  var wc=calcLay(bo,lo,bs/2,c),pc=calcLay(po,plo,bs/2,c);
+  return{wc:wc,pc:pc,total:wc.layLiability+pc.layLiability};
+}
+function calcDutch(sels){
+  var tot=sels.reduce(function(a,s){return a+(s.odds>1?1/(s.odds-1):0);},0);
+  return sels.map(function(s){return Object.assign({},s,{stake:tot>0?+(100/(tot*(s.odds-1))).toFixed(2):0});});
+}
+
+function buildSeed(){
+  var now=Date.now();
+  function d(n){return new Date(now-n*86400000).toISOString().slice(0,10);}
+  var accounts=[
+    {id:'bank',name:'Cash Bank',type:'bank',balance:0,color:'#6366f1'},
+    {id:'betfair',name:'Betfair Exchange',type:'exchange',balance:0,color:'#f59e0b'},
+    {id:'bet365',name:'Bet365',type:'bookmaker',balance:0,color:'#10b981'},
+    {id:'skybet',name:'Sky Bet',type:'bookmaker',balance:0,color:'#3b82f6'},
+    {id:'wh',name:'William Hill',type:'bookmaker',balance:0,color:'#ef4444'},
+  ];
+  var txns=[];var bal={bank:0,betfair:0,bet365:0,skybet:0,wh:0};
+  function add(aid,type,amount,desc,date,refId){
+    bal[aid]=+(bal[aid]+amount).toFixed(2);
+    txns.push({id:uid(),accountId:aid,type:type,amount:amount,desc:desc,date:date,runningBalance:bal[aid],refId:refId||null});
+  }
+  add('bank','deposit',500,'Initial deposit',d(30));
+  add('bank','transfer-out',-150,'Transfer to Bet365',d(29));add('bet365','transfer-in',150,'Deposit from Cash Bank',d(29));
+  add('bank','transfer-out',-100,'Transfer to Betfair',d(29));add('betfair','transfer-in',100,'Deposit from Cash Bank',d(29));
+  add('bank','transfer-out',-100,'Transfer to Sky Bet',d(28));add('skybet','transfer-in',100,'Deposit from Cash Bank',d(28));
+  add('bank','transfer-out',-80,'Transfer to William Hill',d(27));add('wh','transfer-in',80,'Deposit from Cash Bank',d(27));
+  var b1=uid();
+  add('bet365','back-stake',-20,'Back: Arsenal @ 2.10 [Arsenal vs Chelsea]',d(25),b1);
+  add('betfair','lay-liability',-22,'Lay liability: Arsenal @ 2.20 [Arsenal vs Chelsea]',d(25),b1);
+  add('bet365','back-win',42,'Back win: Arsenal [Arsenal vs Chelsea]',d(24),b1);
+  add('betfair','lay-loss',-22,'Lay loss [Arsenal vs Chelsea]',d(24),b1);
+  add('betfair','commission',-0.44,'Commission [Arsenal vs Chelsea]',d(24),b1);
+  var b2=uid();
+  add('skybet','back-stake',-25,'Back: Man City @ 1.80 [Man City vs Liverpool]',d(22),b2);
+  add('betfair','lay-liability',-19.5,'Lay liability: Man City @ 1.85',d(22),b2);
+  add('skybet','back-loss',0,'Back lost: Man City [Man City vs Liverpool]',d(21),b2);
+  add('betfair','lay-win',19.5,'Lay win: Man City [Man City vs Liverpool]',d(21),b2);
+  add('betfair','commission',-0.39,'Commission [Man City vs Liverpool]',d(21),b2);
+  var b3=uid();
+  add('wh','free-bet',30,'Free bet credited: Welcome offer',d(20),b3);
+  add('wh','back-stake',-30,'Free bet: Spurs @ 3.00 [Spurs vs Wolves]',d(20),b3);
+  add('betfair','lay-liability',-44,'Lay liability: Spurs @ 3.20 [Spurs vs Wolves]',d(20),b3);
+  add('wh','back-win',60,'Free bet win: Spurs [Spurs vs Wolves]',d(19),b3);
+  add('betfair','lay-loss',-44,'Lay loss [Spurs vs Wolves]',d(19),b3);
+  add('betfair','commission',-0.88,'Commission [Spurs vs Wolves]',d(19),b3);
+  var b4=uid();
+  add('bet365','back-stake',-30,'Back: Chelsea @ 2.50 [Chelsea vs Newcastle]',d(3),b4);
+  add('betfair','lay-liability',-37.5,'Lay liability: Chelsea @ 2.60 [Chelsea vs Newcastle]',d(3),b4);
+  var b5=uid();
+  add('skybet','back-stake',-15,'Back: BTTS Yes @ 1.90 [Leeds vs Ipswich]',d(1),b5);
+  add('betfair','lay-liability',-13.5,'Lay liability: BTTS @ 1.95 [Leeds vs Ipswich]',d(1),b5);
+  accounts.forEach(function(a){a.balance=bal[a.id]||0;});
+  var bets=[
+    {id:b1,event:'Arsenal vs Chelsea',market:'Match Result',selection:'Arsenal',backAccountId:'bet365',layAccountId:'betfair',backOdds:2.10,layOdds:2.20,backStake:20,layStake:19.09,layLiability:22,commission:2,qualLoss:-0.69,status:'settled',result:'back-win',date:d(25),settledDate:d(24),isFree:false,notes:''},
+    {id:b2,event:'Man City vs Liverpool',market:'Match Result',selection:'Man City',backAccountId:'skybet',layAccountId:'betfair',backOdds:1.80,layOdds:1.85,backStake:25,layStake:24.32,layLiability:20.67,commission:2,qualLoss:-0.82,status:'settled',result:'back-loss',date:d(22),settledDate:d(21),isFree:false,notes:''},
+    {id:b3,event:'Spurs vs Wolves',market:'Match Result',selection:'Spurs',backAccountId:'wh',layAccountId:'betfair',backOdds:3.00,layOdds:3.20,backStake:30,layStake:28.85,layLiability:63.46,commission:2,qualLoss:14.32,status:'settled',result:'back-win',date:d(20),settledDate:d(19),isFree:true,notes:'WH Welcome free bet SNR'},
+    {id:b4,event:'Chelsea vs Newcastle',market:'Match Result',selection:'Chelsea',backAccountId:'bet365',layAccountId:'betfair',backOdds:2.50,layOdds:2.60,backStake:30,layStake:28.85,layLiability:46.15,commission:2,qualLoss:-1.15,status:'open',result:null,date:d(3),settledDate:null,isFree:false,notes:''},
+    {id:b5,event:'Leeds vs Ipswich',market:'BTTS',selection:'Yes',backAccountId:'skybet',layAccountId:'betfair',backOdds:1.90,layOdds:1.95,backStake:15,layStake:14.62,layLiability:13.86,commission:2,qualLoss:-0.45,status:'open',result:null,date:d(1),settledDate:null,isFree:false,notes:''},
+  ];
+  return{accounts:accounts,txns:txns,bets:bets};
+}
+
+// SVG icon helper
+var PATHS={
+  dashboard:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  bets:'<path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>',
+  accounts:'<path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>',
+  calculator:'<rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4h6v2"/>',
+  edit:'<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+  x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  download:'<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  upload:'<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  trending:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+  alert:'<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  save:'<path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+};
+function Ico(p){
+  return h('svg',{width:p.size||16,height:p.size||16,viewBox:'0 0 24 24',fill:'none',stroke:p.color||'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round',dangerouslySetInnerHTML:{__html:PATHS[p.name]||''}});
+}
+
+var TT={
+  'deposit':{label:'Deposit',cls:'ap'},
+  'withdrawal':{label:'Withdrawal',cls:'an'},
+  'transfer-in':{label:'Transfer In',cls:''},
+  'transfer-out':{label:'Transfer Out',cls:''},
+  'back-stake':{label:'Back Stake',cls:'an'},
+  'back-win':{label:'Back Win',cls:'ap'},
+  'back-loss':{label:'Back Loss',cls:'az'},
+  'lay-liability':{label:'Lay Liability',cls:'an'},
+  'lay-win':{label:'Lay Win',cls:'ap'},
+  'lay-loss':{label:'Lay Loss',cls:'an'},
+  'commission':{label:'Commission',cls:''},
+  'free-bet':{label:'Free Bet',cls:''},
+  'bonus':{label:'Bonus',cls:''},
+  'manual':{label:'Manual',cls:'az'},
+};
+var AC={bank:'#6366f1',exchange:'#f59e0b',bookmaker:'#10b981',other:'#6b7280'};
+
+function AmtCell(p){var v=p.v;var cls=v>0?'ap':v<0?'an':'az';return h('span',{className:cls},fmt(v));}
+
+function Btn(p){
+  var vc={'primary':'btn-p','secondary':'btn-s','danger':'btn-d','success':'btn-ok','ghost':'btn-g'};
+  var cls='btn '+(vc[p.variant||'primary']||'btn-p')+(p.size==='sm'?' btn-sm':'')+(p.className?' '+p.className:'');
+  return h('button',{className:cls,onClick:p.onClick,disabled:p.disabled},p.icon&&h(Ico,{name:p.icon,size:13}),p.children);
+}
+
+function Field(p){return h('div',null,p.label&&h('label',{className:'lbl'},p.label),p.children);}
+function Inp(p){
+  return h(Field,{label:p.label},h('input',{type:p.type||'text',value:p.value,onChange:function(e){p.onChange(e.target.value);},step:p.step,min:p.min,placeholder:p.placeholder,className:p.className}));
+}
+function Sel(p){
+  return h(Field,{label:p.label},h('select',{value:p.value,onChange:function(e){p.onChange(e.target.value);}},p.options.map(function(o){return h('option',{key:o.value,value:o.value},o.label);})));
+}
+
+function Modal(p){
+  return h('div',{className:'moverlay',onClick:function(e){if(e.target===e.currentTarget&&p.onClose)p.onClose();}},
+    h('div',{className:'mdialog',style:{maxWidth:p.wide?680:520}},
+      h('div',{className:'mhdr'},
+        h('span',{style:{fontWeight:700,color:'#fff',fontFamily:'DM Sans,system-ui,sans-serif'}},p.title),
+        h('button',{className:'btn btn-g btn-sm',onClick:p.onClose},h(Ico,{name:'x',size:16}))),
+      h('div',{className:'mbody'},p.children)));
+}
+
+function CTip(p){
+  if(!p.active||!p.payload||!p.payload.length)return null;
+  return h('div',{style:{background:'#1f2937',border:'1px solid #374151',borderRadius:8,padding:'8px 12px',fontSize:11}},
+    h('div',{style:{color:'#9ca3af',marginBottom:2}},p.label),
+    h('div',{style:{color:'#a78bfa',fontFamily:'DM Mono,monospace',fontWeight:600}},(p.currency||'£')+p.payload[0].value.toFixed(2)));
+}
+
+// ── DASHBOARD
+function Dashboard(p){
+  var accounts=p.accounts,bets=p.bets,txns=p.txns,currency=p.currency,onNavigate=p.onNavigate;
+  var total=accounts.reduce(function(a,b){return a+b.balance;},0);
+  var open=bets.filter(function(b){return b.status==='open';});
+  var settled=bets.filter(function(b){return b.status==='settled';});
+  var profit=settled.reduce(function(a,b){return a+(b.qualLoss||0);},0);
+  var staked=settled.reduce(function(a,b){return a+(b.backStake||0);},0);
+  var roi=staked>0?(profit/staked)*100:0;
+  var wins=settled.filter(function(b){return b.result==='back-win';}).length;
+  var wr=settled.length?((wins/settled.length)*100).toFixed(1):0;
+  var profitData=useMemo(function(){
+    var s=settled.slice().sort(function(a,b){return new Date(a.settledDate)-new Date(b.settledDate);});
+    var c=0;return s.map(function(b){c=+(c+(b.qualLoss||0)).toFixed(2);return{date:b.settledDate,profit:c};});
+  },[bets]);
+  var recent=txns.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);}).slice(0,8);
+  var aMap={};accounts.forEach(function(a){aMap[a.id]=a;});
+  return h('div',{className:'sp5 fade'},
+    h('div',{className:'fl jb fw gap2 aic'},
+      h('div',null,
+        h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.1em'}},'Total Portfolio Value'),
+        h('div',{className:'font-mono font-bold',style:{fontSize:36,color:total>=0?'#fff':'#f87171'}},fmt(total,currency))),
+      open.length>0&&h('div',{onClick:function(){onNavigate('bets');},style:{background:'#422006',border:'1px solid #92400e',borderRadius:10,padding:'10px 16px',cursor:'pointer',display:'flex',alignItems:'center',gap:8}},
+        h(Ico,{name:'alert',size:15,color:'#fbbf24'}),
+        h('span',{className:'sans',style:{fontSize:13,color:'#fbbf24'}},open.length+' open bet'+(open.length!==1?'s':'')+' unsettled'))),
+    h('div',{className:'g4'},
+      [{l:'Total Profit',v:fmt(profit,currency),c:profit>=0?'#4ade80':'#f87171'},
+       {l:'ROI',v:fmtPct(roi),c:roi>=0?'#4ade80':'#f87171'},
+       {l:'Settled Bets',v:settled.length,c:'#fff'},
+       {l:'Win Rate',v:wr+'%',c:'#fff'}
+      ].map(function(s){return h('div',{key:s.l,className:'card',style:{padding:16}},
+        h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:4}},s.l),
+        h('div',{className:'font-mono font-bold',style:{fontSize:20,color:s.c}},s.v));})),
+    h('div',null,
+      h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}},'Accounts'),
+      h('div',{className:'ag'},accounts.map(function(a){
+        return h('div',{key:a.id,className:'card card-click',style:{padding:16},onClick:function(){onNavigate('accounts',a.id);}},
+          h('div',{className:'fl jb aic',style:{marginBottom:8}},
+            h('div',null,
+              h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',textTransform:'capitalize'}},a.type),
+              h('div',{className:'sans',style:{fontSize:13,fontWeight:500,color:'#fff',marginTop:2}},a.name)),
+            h('div',{className:'dot',style:{backgroundColor:a.color||AC[a.type]}})),
+          h('div',{className:'font-mono font-bold',style:{fontSize:20,color:a.balance>=0?'#fff':'#f87171'}},fmt(a.balance,currency)));}))
+    ),
+    profitData.length>1&&h('div',{className:'card',style:{padding:16}},
+      h('div',{className:'sans',style:{fontSize:13,fontWeight:500,color:'#d1d5db',marginBottom:12}},'Cumulative Profit'),
+      h(ResponsiveContainer,{width:'100%',height:160},
+        h(AreaChart,{data:profitData},
+          h('defs',null,h('linearGradient',{id:'pg',x1:'0',y1:'0',x2:'0',y2:'1'},h('stop',{offset:'5%',stopColor:'#7c3aed',stopOpacity:0.3}),h('stop',{offset:'95%',stopColor:'#7c3aed',stopOpacity:0}))),
+          h(CartesianGrid,{strokeDasharray:'3 3',stroke:'#1f2937'}),
+          h(XAxis,{dataKey:'date',tick:{fontSize:9,fill:'#6b7280'}}),
+          h(YAxis,{tick:{fontSize:9,fill:'#6b7280'},tickFormatter:function(v){return currency+v;}}),
+          h(Tooltip,{content:function(tp){return h(CTip,Object.assign({},tp,{currency:currency}));}}),
+          h(ReferenceLine,{y:0,stroke:'#374151'}),
+          h(Area,{type:'monotone',dataKey:'profit',stroke:'#7c3aed',fill:'url(#pg)',strokeWidth:2})))),
+    h('div',{className:'card',style:{padding:16}},
+      h('div',{className:'sans',style:{fontSize:13,fontWeight:500,color:'#d1d5db',marginBottom:10}},'Recent Activity'),
+      recent.length===0?h('div',{className:'sans',style:{fontSize:13,color:'#4b5563'}},'No transactions yet.'):
+      h('div',null,recent.map(function(t){
+        var ac=aMap[t.accountId];
+        return h('div',{key:t.id,style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #1f2937'}},
+          h('div',{style:{display:'flex',alignItems:'center',gap:10,minWidth:0}},
+            h('div',{className:'dot',style:{backgroundColor:ac?ac.color||AC[ac.type]:'#6b7280'}}),
+            h('div',{style:{minWidth:0}},
+              h('div',{style:{fontSize:12,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},t.desc),
+              h('div',{className:'sans',style:{fontSize:11,color:'#6b7280'}},(ac?ac.name:'')+' · '+t.date))),
+          h(AmtCell,{v:t.amount}));}))
+    )
+  );
+}
+
+// ── BETS PAGE
+function BetsPage(p){
+  var bets=p.bets,accounts=p.accounts,txns=p.txns,setTxns=p.setTxns,setBets=p.setBets,setAccounts=p.setAccounts,commission=p.commission,currency=p.currency;
+  var _a=useState(false),showNew=_a[0],setShowNew=_a[1];
+  var _b=useState(null),settle=_b[0],setSettle=_b[1];
+  var _c=useState(null),editBet=_c[0],setEditBet=_c[1];
+  var _d=useState('all'),filter=_d[0],setFilter=_d[1];
+  var _e=useState(false),showCalc=_e[0],setShowCalc=_e[1];
+  var aMap={};accounts.forEach(function(a){aMap[a.id]=a;});
+
+  function postTxn(aid,type,amount,desc,date,refId){
+    var ac=accounts.find(function(a){return a.id===aid;});if(!ac)return;
+    var nb=+(ac.balance+amount).toFixed(2);
+    setAccounts(function(prev){return prev.map(function(a){return a.id===aid?Object.assign({},a,{balance:nb}):a;});});
+    setTxns(function(prev){
+      var run=prev.filter(function(t){return t.accountId===aid;}).reduce(function(s,t){return s+t.amount;},0);
+      return prev.concat([{id:uid(),accountId:aid,type:type,amount:amount,desc:desc,date:date,runningBalance:+(run+amount).toFixed(2),refId:refId}]);
+    });
+  }
+  function place(bet){
+    if(!bet.isFree)postTxn(bet.backAccountId,'back-stake',-bet.backStake,'Back @ '+bet.backOdds+' – ['+bet.event+'] '+bet.selection,bet.date,bet.id);
+    postTxn(bet.layAccountId,'lay-liability',-bet.layLiability,'Lay liability @ '+bet.layOdds+' – ['+bet.event+'] '+bet.selection,bet.date,bet.id);
+    setBets(function(prev){return prev.concat([Object.assign({},bet,{status:'open',result:null})]);});
+    setShowNew(false);
+  }
+  function doSettle(bet,result){
+    var desc='['+bet.event+'] '+bet.selection,date=today(),c=bet.commission/100;
+    if(result==='back-win'){
+      postTxn(bet.backAccountId,'back-win',+(bet.backStake*bet.backOdds).toFixed(2),'Back win – '+desc,date,bet.id);
+      postTxn(bet.layAccountId,'lay-loss',0,'Lay loss – '+desc,date,bet.id);
+      var ca=+(bet.layStake*c).toFixed(2);if(ca>0)postTxn(bet.layAccountId,'commission',-ca,'Commission – '+desc,date,bet.id);
+    }else if(result==='back-loss'){
+      postTxn(bet.backAccountId,'back-loss',0,'Back lost – '+desc,date,bet.id);
+      postTxn(bet.layAccountId,'lay-win',+(bet.layLiability+bet.layStake).toFixed(2),'Lay win – '+desc,date,bet.id);
+      var ca2=+(bet.layStake*c).toFixed(2);if(ca2>0)postTxn(bet.layAccountId,'commission',-ca2,'Commission – '+desc,date,bet.id);
+    }else if(result==='void'){
+      if(!bet.isFree)postTxn(bet.backAccountId,'back-win',bet.backStake,'Void refund (back) – '+desc,date,bet.id);
+      postTxn(bet.layAccountId,'lay-win',bet.layLiability,'Void refund (lay) – '+desc,date,bet.id);
+    }
+    setBets(function(prev){return prev.map(function(b){return b.id===bet.id?Object.assign({},b,{status:'settled',result:result,settledDate:date}):b;});});
+    setSettle(null);
+  }
+  function del(bet){
+    if(!confirm('Delete "'+bet.event+'"? Transactions will NOT be reversed.'))return;
+    setBets(function(prev){return prev.filter(function(b){return b.id!==bet.id;});});
+  }
+  var filtered=bets.filter(function(b){return filter==='all'?true:filter==='open'?b.status==='open':b.status==='settled';})
+    .sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  var scMap={open:'bdg-y',settled:'bdg-g',void:'bdg-gr',cancelled:'bdg-gr'};
+
+  return h('div',{className:'sp4 fade'},
+    h('div',{className:'fl fw aic gap2'},
+      h('h2',{className:'sans font-bold text-white',style:{fontSize:18,flex:1}},'Matched Bets'),
+      h('div',{className:'fb'},['all','open','settled'].map(function(f){return h('button',{key:f,className:'fbb'+(filter===f?' act':''),onClick:function(){setFilter(f);}},f);})),
+      h(Btn,{variant:'secondary',size:'sm',icon:'calculator',onClick:function(){setShowCalc(true);}},'Calc'),
+      h(Btn,{size:'sm',icon:'plus',onClick:function(){setShowNew(true);}},'New Bet')),
+    h('div',{className:'sp3'},
+      filtered.length===0?h('div',{className:'card sans',style:{padding:16,textAlign:'center',color:'#4b5563'}},'No bets found.'):
+      filtered.map(function(bet){
+        var bk=aMap[bet.backAccountId],ex=aMap[bet.layAccountId];
+        return h('div',{key:bet.id,className:'card',style:{padding:16}},
+          h('div',{className:'fl fw aic jb gap2',style:{marginBottom:12}},
+            h('div',null,
+              h('div',{className:'fl aic gap2 fw'},
+                h('span',{className:'sans font-bold text-white',style:{fontSize:13}},bet.event),
+                h('span',{className:'bdg '+(scMap[bet.status]||'bdg-gr')},bet.status),
+                bet.isFree&&h('span',{className:'bdg bdg-v'},'Free Bet')),
+              h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',marginTop:4}},bet.market+' · '+bet.selection+' · '+bet.date)),
+            h('div',{className:'fl gap2'},
+              bet.status==='open'&&h(Btn,{variant:'success',size:'sm',onClick:function(){setSettle(bet);}},'Settle'),
+              h(Btn,{variant:'ghost',size:'sm',icon:'edit',onClick:function(){setEditBet(bet);}}),
+              h(Btn,{variant:'danger',size:'sm',icon:'trash',onClick:function(){del(bet);}}))),
+          h('div',{className:'bg'},
+            [{l:'Back odds',v:bet.backOdds,c:'#fff'},{l:'Lay odds',v:bet.layOdds,c:'#fff'},
+             {l:'Back stake',v:fmt(bet.backStake,currency),c:'#fff'},{l:'Lay stake',v:fmt(bet.layStake,currency),c:'#fff'},
+             {l:'Liability',v:fmt(bet.layLiability,currency),c:'#f87171'},{l:bet.isFree?'FB Profit':'Qual Loss',v:fmt(bet.qualLoss,currency),c:bet.qualLoss>=0?'#4ade80':'#f87171'},
+            ].map(function(x){return h('div',{key:x.l},h('div',{className:'sans',style:{fontSize:10,color:'#6b7280'}},x.l),h('div',{className:'font-mono font-bold',style:{fontSize:12,color:x.c}},x.v));})),
+          h('div',{className:'fl fw gap2',style:{marginTop:8,fontSize:11,color:'#6b7280'}},
+            h('span',{className:'sans'},'Back: ',h('span',{style:{color:'#d1d5db'}},bk?bk.name:bet.backAccountId)),
+            h('span',{className:'sans'},'Exchange: ',h('span',{style:{color:'#d1d5db'}},ex?ex.name:bet.layAccountId)),
+            h('span',{className:'sans'},'Comm: ',h('span',{style:{color:'#d1d5db'}},bet.commission+'%')),
+            bet.notes&&h('span',{className:'sans'},'Note: ',h('span',{style:{color:'#d1d5db'}},bet.notes))));
+      })),
+    showNew&&h(NewBetModal,{accounts:accounts,commission:commission,currency:currency,onPlace:place,onClose:function(){setShowNew(false);}}),
+    settle&&h(SettleModal,{bet:settle,currency:currency,onSettle:doSettle,onClose:function(){setSettle(null);}}),
+    editBet&&h(EditBetModal,{bet:editBet,currency:currency,onSave:function(u){setBets(function(prev){return prev.map(function(b){return b.id===u.id?u:b;});});setEditBet(null);},onClose:function(){setEditBet(null);}}),
+    showCalc&&h(Modal,{title:'Calculators',onClose:function(){setShowCalc(false);},wide:true},h(CalcsPage,{commission:commission,currency:currency})));
+}
+
+function NewBetModal(p){
+  var accounts=p.accounts,commission=p.commission,currency=p.currency,onPlace=p.onPlace,onClose=p.onClose;
+  var bks=accounts.filter(function(a){return a.type!=='exchange';}).map(function(a){return{value:a.id,label:a.name};});
+  var exs=accounts.filter(function(a){return a.type==='exchange';}).map(function(a){return{value:a.id,label:a.name};});
+  var _a=useState({event:'',market:'Match Result',selection:'',backAccountId:bks[0]?bks[0].value:'',layAccountId:exs[0]?exs[0].value:'',backOdds:'',layOdds:'',backStake:'',commission:commission,isFree:false,notes:'',date:today()});
+  var f=_a[0],setF=_a[1];
+  function s(k){return function(v){setF(function(prev){var n=Object.assign({},prev);n[k]=v;return n;});};}
+  var calc=useMemo(function(){
+    var bo=parseFloat(f.backOdds),lo=parseFloat(f.layOdds),bs=parseFloat(f.backStake),co=parseFloat(f.commission);
+    return bo>1&&lo>1&&bs>0&&co>=0?calcLay(bo,lo,bs,co,f.isFree,true):null;
+  },[f]);
+  function doPlace(){
+    if(!calc||!f.event||!f.selection){alert('Fill required fields.');return;}
+    onPlace({id:uid(),event:f.event,market:f.market,selection:f.selection,backAccountId:f.backAccountId,layAccountId:f.layAccountId,backOdds:parseFloat(f.backOdds),layOdds:parseFloat(f.layOdds),backStake:parseFloat(f.backStake),layStake:calc.layStake,layLiability:calc.layLiability,commission:parseFloat(f.commission),qualLoss:calc.qualLoss,isFree:f.isFree,notes:f.notes,date:f.date});
+  }
+  return h(Modal,{title:'Place Matched Bet',onClose:onClose,wide:true},
+    h('div',{className:'g2 sp3'},
+      h('div',{className:'cs2'},h(Inp,{label:'Event *',value:f.event,onChange:s('event'),placeholder:'e.g. Arsenal vs Chelsea'})),
+      h(Inp,{label:'Market',value:f.market,onChange:s('market')}),
+      h(Inp,{label:'Selection *',value:f.selection,onChange:s('selection')}),
+      h(Sel,{label:'Bookmaker',value:f.backAccountId,onChange:s('backAccountId'),options:bks}),
+      h(Sel,{label:'Exchange',value:f.layAccountId,onChange:s('layAccountId'),options:exs}),
+      h(Inp,{label:'Back Odds',value:f.backOdds,onChange:s('backOdds'),type:'number',step:'0.01',min:'1.01'}),
+      h(Inp,{label:'Lay Odds',value:f.layOdds,onChange:s('layOdds'),type:'number',step:'0.01',min:'1.01'}),
+      h(Inp,{label:'Back Stake',value:f.backStake,onChange:s('backStake'),type:'number',step:'0.01',min:'0'}),
+      h(Inp,{label:'Commission %',value:f.commission,onChange:s('commission'),type:'number',step:'0.1',min:'0'}),
+      h(Inp,{label:'Date',value:f.date,onChange:s('date'),type:'date'}),
+      h('div',{className:'cbr',style:{marginTop:18}},h('input',{type:'checkbox',id:'fbc',checked:f.isFree,onChange:function(e){s('isFree')(e.target.checked);}}),h('label',{htmlFor:'fbc',className:'sans',style:{fontSize:13,color:'#d1d5db',cursor:'pointer'}},'Free Bet (SNR)')),
+      h('div',{className:'cs2'},h(Inp,{label:'Notes',value:f.notes,onChange:s('notes'),placeholder:'Optional'}))),
+    calc&&h('div',{className:'cg',style:{marginTop:12}},
+      [{l:'Lay Stake',v:fmt(calc.layStake,currency),c:'#fff'},{l:'Lay Liability',v:fmt(calc.layLiability,currency),c:'#f87171'},{l:f.isFree?'Expected Profit':'Qual Loss',v:fmt(calc.qualLoss,currency),c:calc.qualLoss>=0?'#4ade80':'#f87171'}]
+      .map(function(x){return h('div',{key:x.l,className:'cr'},h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',marginBottom:4}},x.l),h('div',{className:'font-mono font-bold',style:{color:x.c}},x.v));})),
+    h('div',{className:'fl gap2 jb',style:{marginTop:14,justifyContent:'flex-end'}},h(Btn,{variant:'secondary',onClick:onClose},'Cancel'),h(Btn,{onClick:doPlace,disabled:!calc||!f.event||!f.selection},'Place Bet')));
+}
+
+function SettleModal(p){
+  var bet=p.bet,currency=p.currency,onSettle=p.onSettle,onClose=p.onClose;
+  return h(Modal,{title:'Settle: '+bet.event,onClose:onClose},
+    h('div',{className:'sans',style:{fontSize:13,color:'#9ca3af',marginBottom:4}},bet.selection+' · Back '+bet.backOdds+' / Lay '+bet.layOdds+' · Stake '+fmt(bet.backStake,currency)),
+    h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',marginBottom:14}},'Select outcome to post all cash flows automatically:'),
+    h('div',{className:'sg'},
+      h('button',{className:'sb sw',onClick:function(){onSettle(bet,'back-win');}},h(Ico,{name:'trending',size:20,color:'#4ade80'}),h('span',{className:'sans',style:{fontSize:13,fontWeight:500}},'Back Wins'),h('span',{className:'sans',style:{fontSize:11,opacity:0.7}},'Selection won')),
+      h('button',{className:'sb sl',onClick:function(){onSettle(bet,'back-loss');}},h(Ico,{name:'x',size:20,color:'#f87171'}),h('span',{className:'sans',style:{fontSize:13,fontWeight:500}},'Back Loses'),h('span',{className:'sans',style:{fontSize:11,opacity:0.7}},'Selection lost')),
+      h('button',{className:'sb sv',onClick:function(){onSettle(bet,'void');}},h(Ico,{name:'info',size:20,color:'#9ca3af'}),h('span',{className:'sans',style:{fontSize:13,fontWeight:500}},'Void'),h('span',{className:'sans',style:{fontSize:11,opacity:0.7}},'Race off / NR'))));
+}
+
+function EditBetModal(p){
+  var _a=useState(Object.assign({},p.bet));var f=_a[0],setF=_a[1];
+  function s(k){return function(v){setF(function(prev){var n=Object.assign({},prev);n[k]=v;return n;});};}
+  return h(Modal,{title:'Edit Bet',onClose:p.onClose},
+    h('div',{className:'g2 sp3'},
+      h('div',{className:'cs2'},h(Inp,{label:'Event',value:f.event,onChange:s('event')})),
+      h(Inp,{label:'Market',value:f.market,onChange:s('market')}),h(Inp,{label:'Selection',value:f.selection,onChange:s('selection')}),
+      h(Inp,{label:'Back Odds',value:f.backOdds,onChange:function(v){s('backOdds')(parseFloat(v));},type:'number',step:'0.01'}),
+      h(Inp,{label:'Lay Odds',value:f.layOdds,onChange:function(v){s('layOdds')(parseFloat(v));},type:'number',step:'0.01'}),
+      h(Inp,{label:'Back Stake',value:f.backStake,onChange:function(v){s('backStake')(parseFloat(v));},type:'number',step:'0.01'}),
+      h(Inp,{label:'Qual Loss / Profit',value:f.qualLoss,onChange:function(v){s('qualLoss')(parseFloat(v));},type:'number',step:'0.01'}),
+      h('div',{className:'cs2'},h(Inp,{label:'Notes',value:f.notes,onChange:s('notes')}))),
+    h('div',{className:'fl gap2',style:{marginTop:14,justifyContent:'flex-end'}},h(Btn,{variant:'secondary',onClick:p.onClose},'Cancel'),h(Btn,{onClick:function(){p.onSave(f);}},'Save')));
+}
+
+// ── ACCOUNTS PAGE
+function AccountsPage(p){
+  var accounts=p.accounts,setAccounts=p.setAccounts,txns=p.txns,setTxns=p.setTxns,currency=p.currency,focusId=p.focusId,setFocusId=p.setFocusId;
+  var _a=useState(focusId||accounts[0].id);var active=_a[0],setActive=_a[1];
+  var _b=useState(false);var showNew=_b[0],setShowNew=_b[1];
+  var _c=useState(false);var showTxn=_c[0],setShowTxn=_c[1];
+  var _d=useState(null);var editT=_d[0],setEditT=_d[1];
+  useEffect(function(){if(focusId){setActive(focusId);setFocusId(null);};},[focusId]);
+  var acct=accounts.find(function(a){return a.id===active;});
+  var atxns=txns.filter(function(t){return t.accountId===active;}).sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+
+  function rb(list){var b=0;return list.map(function(t){b=+(b+t.amount).toFixed(2);return Object.assign({},t,{runningBalance:b});});}
+  function addTxn(txn){
+    var nb=+(acct.balance+txn.amount).toFixed(2);
+    setAccounts(function(prev){return prev.map(function(a){return a.id===active?Object.assign({},a,{balance:nb}):a;});});
+    var prev=txns.filter(function(t){return t.accountId===active;}).sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+    var lb=prev.length>0?prev[prev.length-1].runningBalance:0;
+    setTxns(function(p2){return p2.concat([Object.assign({},txn,{id:uid(),accountId:active,runningBalance:+(lb+txn.amount).toFixed(2)})]);});
+    setShowTxn(false);
+  }
+  function delTxn(t){
+    if(!confirm('Delete transaction? Balance will be adjusted.'))return;
+    setAccounts(function(prev){return prev.map(function(a){return a.id===t.accountId?Object.assign({},a,{balance:+(a.balance-t.amount).toFixed(2)}):a;});});
+    setTxns(function(prev){
+      var rem=prev.filter(function(tx){return tx.id!==t.id;});
+      var al=rem.filter(function(tx){return tx.accountId===t.accountId;}).sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+      var rbd=rb(al);var rmap={};rbd.forEach(function(tx){rmap[tx.id]=tx;});
+      return rem.map(function(tx){return rmap[tx.id]||tx;});
+    });
+  }
+  function delAcct(id){
+    if(!confirm('Delete account and all its transactions?'))return;
+    setAccounts(function(prev){return prev.filter(function(a){return a.id!==id;});});
+    setTxns(function(prev){return prev.filter(function(t){return t.accountId!==id;});});
+    var next=accounts.find(function(a){return a.id!==id;});setActive(next?next.id:null);
+  }
+  function csv(){
+    var rows=[['Date','Type','Description','Amount','Balance']];
+    atxns.forEach(function(t){rows.push([t.date,(TT[t.type]?TT[t.type].label:t.type),'"'+t.desc+'"',t.amount,t.runningBalance]);});
+    var blob=new Blob([rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});
+    var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=(acct?acct.name:'account')+'.csv';a.click();URL.revokeObjectURL(u);
+  }
+  return h('div',{className:'altl fade'},
+    h('div',{className:'asb'},
+      h('div',{className:'fl jb aic',style:{marginBottom:8}},
+        h('span',{className:'sans',style:{fontSize:11,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.05em'}},'Accounts'),
+        h(Btn,{variant:'ghost',size:'sm',icon:'plus',onClick:function(){setShowNew(true);}})),
+      h('div',{className:'sp2'},accounts.map(function(a){
+        return h('div',{key:a.id,className:'ai'+(active===a.id?' act':''),onClick:function(){setActive(a.id);}},
+          h('div',{className:'dot',style:{backgroundColor:a.color||AC[a.type]}}),
+          h('div',{style:{minWidth:0,flex:1}},
+            h('div',{className:'sans text-white trunc',style:{fontSize:13}},a.name),
+            h('div',{className:'font-mono',style:{fontSize:12,color:a.balance>=0?'#9ca3af':'#f87171'}},fmt(a.balance,currency))));}))
+    ),
+    h('div',{style:{flex:1,minWidth:0}},
+      acct?h('div',null,
+        h('div',{className:'fl fw aic gap2',style:{marginBottom:12}},
+          h('div',{style:{flex:1}},h('div',{className:'sans font-bold text-white'},acct.name),h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',textTransform:'capitalize'}},acct.type)),
+          h('div',{className:'font-mono font-bold',style:{fontSize:20,color:acct.balance>=0?'#fff':'#f87171'}},fmt(acct.balance,currency)),
+          h(Btn,{icon:'plus',size:'sm',onClick:function(){setShowTxn(true);}},'Add'),
+          h(Btn,{variant:'secondary',icon:'download',size:'sm',onClick:csv},'CSV'),
+          !['bank','betfair'].includes(acct.id)&&h(Btn,{variant:'danger',size:'sm',icon:'trash',onClick:function(){delAcct(acct.id);}})),
+        h('div',{className:'card twrap'},
+          h('table',null,
+            h('thead',null,h('tr',null,['Date','Type','Description','Amount','Balance',''].map(function(x){return h('th',{key:x},x);}))),
+            h('tbody',null,
+              atxns.length===0?h('tr',null,h('td',{colSpan:6,className:'sans',style:{textAlign:'center',color:'#4b5563',padding:24}},'No transactions yet.')):
+              atxns.map(function(t){
+                return h('tr',{key:t.id},
+                  h('td',{className:'sans',style:{color:'#9ca3af',whiteSpace:'nowrap'}},t.date),
+                  h('td',{className:(TT[t.type]?TT[t.type].cls:'az'),style:{whiteSpace:'nowrap'}},(TT[t.type]?TT[t.type].label:t.type)),
+                  h('td',{style:{color:'#d1d5db',maxWidth:180,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},t.desc),
+                  h('td',{style:{whiteSpace:'nowrap'}},h(AmtCell,{v:t.amount})),
+                  h('td',{className:'font-mono',style:{color:'#d1d5db',whiteSpace:'nowrap'}},fmt(t.runningBalance,currency)),
+                  h('td',null,h('div',{className:'fl gap2'},
+                    h('button',{className:'btn btn-g btn-sm',onClick:function(){setEditT(t);}},h(Ico,{name:'edit',size:11})),
+                    h('button',{className:'btn btn-g btn-sm',onClick:function(){delTxn(t);}},h(Ico,{name:'trash',size:11,color:'#f87171'})))));})))))
+      :h('div',{className:'sans',style:{color:'#4b5563',fontSize:13}},'Select an account.')),
+    showNew&&h(NewAcctModal,{onAdd:function(a){setAccounts(function(prev){return prev.concat([a]);});setShowNew(false);setActive(a.id);},onClose:function(){setShowNew(false);}}),
+    showTxn&&h(AddTxnModal,{onAdd:addTxn,onClose:function(){setShowTxn(false);}}),
+    editT&&h(EditTxnModal,{txn:editT,onSave:function(u){
+      var d=u.amount-editT.amount;
+      setAccounts(function(prev){return prev.map(function(a){return a.id===u.accountId?Object.assign({},a,{balance:+(a.balance+d).toFixed(2)}):a;});});
+      setTxns(function(prev){
+        var l=prev.map(function(t){return t.id===u.id?u:t;});
+        var al=l.filter(function(t){return t.accountId===u.accountId;}).sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+        var b=0;var rbd=al.map(function(t){b=+(b+t.amount).toFixed(2);return Object.assign({},t,{runningBalance:b});});
+        var rm={};rbd.forEach(function(t){rm[t.id]=t;});return l.map(function(t){return rm[t.id]||t;});
+      });setEditT(null);},onClose:function(){setEditT(null);}})
+  );
+}
+
+function NewAcctModal(p){
+  var _a=useState({name:'',type:'bookmaker',color:'#10b981'});var f=_a[0],setF=_a[1];
+  function s(k){return function(v){setF(function(prev){var n=Object.assign({},prev);n[k]=v;return n;});};}
+  return h(Modal,{title:'Add Account',onClose:p.onClose},
+    h('div',{className:'sp3'},
+      h(Inp,{label:'Account Name',value:f.name,onChange:s('name'),placeholder:'e.g. Paddy Power'}),
+      h(Sel,{label:'Type',value:f.type,onChange:s('type'),options:[{value:'bookmaker',label:'Bookmaker'},{value:'exchange',label:'Exchange'},{value:'bank',label:'Bank / Cash'},{value:'other',label:'Other'}]}),
+      h('div',null,h('label',{className:'lbl'},'Colour'),h('input',{type:'color',value:f.color,onChange:function(e){s('color')(e.target.value);}}))),
+    h('div',{className:'fl gap2',style:{marginTop:14,justifyContent:'flex-end'}},h(Btn,{variant:'secondary',onClick:p.onClose},'Cancel'),h(Btn,{onClick:function(){if(!f.name)return;p.onAdd({id:uid(),name:f.name,type:f.type,color:f.color,balance:0});}},'Add Account')));
+}
+function AddTxnModal(p){
+  var _a=useState({type:'deposit',amount:'',desc:'',date:today()});var f=_a[0],setF=_a[1];
+  function s(k){return function(v){setF(function(prev){var n=Object.assign({},prev);n[k]=v;return n;});};}
+  var opts=Object.keys(TT).map(function(k){return{value:k,label:TT[k].label};});
+  return h(Modal,{title:'Add Transaction',onClose:p.onClose},
+    h('div',{className:'sp3'},h(Sel,{label:'Type',value:f.type,onChange:s('type'),options:opts}),h(Inp,{label:'Amount (negative = debit)',value:f.amount,onChange:s('amount'),type:'number',step:'0.01'}),h(Inp,{label:'Description',value:f.desc,onChange:s('desc'),placeholder:'Description'}),h(Inp,{label:'Date',value:f.date,onChange:s('date'),type:'date'})),
+    h('div',{className:'fl gap2',style:{marginTop:14,justifyContent:'flex-end'}},h(Btn,{variant:'secondary',onClick:p.onClose},'Cancel'),h(Btn,{onClick:function(){if(!f.amount)return;p.onAdd({type:f.type,amount:parseFloat(f.amount),desc:f.desc,date:f.date});}},'Add')));
+}
+function EditTxnModal(p){
+  var _a=useState(Object.assign({},p.txn));var f=_a[0],setF=_a[1];
+  function s(k){return function(v){setF(function(prev){var n=Object.assign({},prev);n[k]=v;return n;});};}
+  var opts=Object.keys(TT).map(function(k){return{value:k,label:TT[k].label};});
+  return h(Modal,{title:'Edit Transaction',onClose:p.onClose},
+    h('div',{className:'sp3'},h(Sel,{label:'Type',value:f.type,onChange:s('type'),options:opts}),h(Inp,{label:'Amount',value:f.amount,onChange:function(v){s('amount')(parseFloat(v)||0);},type:'number',step:'0.01'}),h(Inp,{label:'Description',value:f.desc,onChange:s('desc')}),h(Inp,{label:'Date',value:f.date,onChange:s('date'),type:'date'})),
+    h('div',{className:'fl gap2',style:{marginTop:14,justifyContent:'flex-end'}},h(Btn,{variant:'secondary',onClick:p.onClose},'Cancel'),h(Btn,{onClick:function(){p.onSave(f);}},'Save')));
+}
+
+// ── CALCULATORS
+function CR(p){return h('div',{className:'cr'},h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',marginBottom:4}},p.label),h('div',{className:'font-mono font-bold',style:{color:p.color||'#fff'}},p.value));}
+
+function MatchCalc(p){
+  var _a=useState('');var bo=_a[0],setBo=_a[1];var _b=useState('');var lo=_b[0],setLo=_b[1];
+  var _c=useState('');var bs=_c[0],setBs=_c[1];var _d=useState(p.commission);var co=_d[0],setCo=_d[1];
+  var r=useMemo(function(){var b=parseFloat(bo),l=parseFloat(lo),s=parseFloat(bs),c=parseFloat(co);return b>1&&l>1&&s>0?calcLay(b,l,s,c):null;},[bo,lo,bs,co]);
+  return h('div',{className:'sp3'},h('div',{className:'g2'},h(Inp,{label:'Back Odds',value:bo,onChange:setBo,type:'number',step:'0.01'}),h(Inp,{label:'Lay Odds',value:lo,onChange:setLo,type:'number',step:'0.01'}),h(Inp,{label:'Back Stake',value:bs,onChange:setBs,type:'number',step:'0.01'}),h(Inp,{label:'Commission %',value:co,onChange:setCo,type:'number',step:'0.1'})),r&&h('div',{className:'cg'},h(CR,{label:'Lay Stake',value:fmt(r.layStake,p.currency)}),h(CR,{label:'Lay Liability',value:fmt(r.layLiability,p.currency),color:'#f87171'}),h(CR,{label:'Qualifying Loss',value:fmt(r.qualLoss,p.currency),color:r.qualLoss>=0?'#4ade80':'#f87171'})));
+}
+function FBCalc(p){
+  var _a=useState('');var bo=_a[0],setBo=_a[1];var _b=useState('');var lo=_b[0],setLo=_b[1];
+  var _c=useState('');var bs=_c[0],setBs=_c[1];var _d=useState(p.commission);var co=_d[0],setCo=_d[1];
+  var _e=useState(true);var snr=_e[0],setSnr=_e[1];
+  var r=useMemo(function(){var b=parseFloat(bo),l=parseFloat(lo),s=parseFloat(bs),c=parseFloat(co);return b>1&&l>1&&s>0?calcLay(b,l,s,c,true,snr):null;},[bo,lo,bs,co,snr]);
+  return h('div',{className:'sp3'},h('div',{className:'g2'},h(Inp,{label:'Back Odds',value:bo,onChange:setBo,type:'number',step:'0.01'}),h(Inp,{label:'Lay Odds',value:lo,onChange:setLo,type:'number',step:'0.01'}),h(Inp,{label:'Free Bet Value',value:bs,onChange:setBs,type:'number',step:'0.01'}),h(Inp,{label:'Commission %',value:co,onChange:setCo,type:'number',step:'0.1'})),h('div',{className:'rrow'},[true,false].map(function(v){return h('label',{key:String(v),className:'rl'},h('input',{type:'radio',checked:snr===v,onChange:function(){setSnr(v);}}),v?'SNR (Stake Not Returned)':'SR (Stake Returned)');})),r&&h('div',{className:'cg'},h(CR,{label:'Lay Stake',value:fmt(r.layStake,p.currency)}),h(CR,{label:'Lay Liability',value:fmt(r.layLiability,p.currency),color:'#f87171'}),h(CR,{label:'Expected Profit',value:fmt(r.qualLoss,p.currency),color:r.qualLoss>=0?'#4ade80':'#f87171'})));
+}
+function EWCalc(p){
+  var _a=useState('');var bo=_a[0],setBo=_a[1];var _b=useState('');var lo=_b[0],setLo=_b[1];
+  var _c=useState('4');var ew=_c[0],setEw=_c[1];var _d=useState('');var bs=_d[0],setBs=_d[1];var _e=useState(p.commission);var co=_e[0],setCo=_e[1];
+  var r=useMemo(function(){var b=parseFloat(bo),l=parseFloat(lo),e=parseFloat(ew),s=parseFloat(bs),c=parseFloat(co);return b>1&&l>1&&e>0&&s>0?calcEW(b,l,e,s,c):null;},[bo,lo,ew,bs,co]);
+  return h('div',{className:'sp3'},h('div',{className:'g2'},h(Inp,{label:'Back Odds',value:bo,onChange:setBo,type:'number',step:'0.01'}),h(Inp,{label:'Lay Odds',value:lo,onChange:setLo,type:'number',step:'0.01'}),h('div',{className:'cs2'},h(Inp,{label:'Place Terms (e.g. 4 = 1/4 odds)',value:ew,onChange:setEw,type:'number',step:'1'})),h(Inp,{label:'Total Back Stake',value:bs,onChange:setBs,type:'number',step:'0.01'}),h(Inp,{label:'Commission %',value:co,onChange:setCo,type:'number',step:'0.1'})),r&&h('div',{className:'sp3'},h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.05em'}},'Win Part'),h('div',{className:'cg'},h(CR,{label:'Lay Stake',value:fmt(r.wc.layStake,p.currency)}),h(CR,{label:'Lay Liability',value:fmt(r.wc.layLiability,p.currency),color:'#f87171'}),h(CR,{label:'Qual Loss',value:fmt(r.wc.qualLoss,p.currency),color:r.wc.qualLoss>=0?'#4ade80':'#f87171'})),h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.05em'}},'Place Part'),h('div',{className:'cg'},h(CR,{label:'Lay Stake',value:fmt(r.pc.layStake,p.currency)}),h(CR,{label:'Lay Liability',value:fmt(r.pc.layLiability,p.currency),color:'#f87171'}),h(CR,{label:'Qual Loss',value:fmt(r.pc.qualLoss,p.currency),color:r.pc.qualLoss>=0?'#4ade80':'#f87171'})),h('div',{className:'ibox'},h('div',{className:'sans',style:{fontSize:11,color:'#9ca3af',marginBottom:4}},'Total Lay Liability'),h('div',{className:'font-mono font-bold',style:{color:'#f87171'}},fmt(r.total,p.currency)))));
+}
+function DutchCalc(p){
+  var _a=useState('100');var target=_a[0],setTarget=_a[1];
+  var _b=useState([{id:uid(),name:'Selection 1',odds:''},{id:uid(),name:'Selection 2',odds:''},{id:uid(),name:'Selection 3',odds:''}]);var sels=_b[0],setSels=_b[1];
+  var results=useMemo(function(){
+    var valid=sels.filter(function(s){return parseFloat(s.odds)>1;});if(valid.length<2)return null;
+    var calc=calcDutch(valid.map(function(s){return{id:s.id,name:s.name,odds:parseFloat(s.odds)};}));
+    var t=parseFloat(target)||100;var ts=calc.reduce(function(a,c){return a+c.stake;},0);var sc=t/ts;
+    return calc.map(function(c){return Object.assign({},c,{stake:+(c.stake*sc).toFixed(2)});});
+  },[sels,target]);
+  return h('div',{className:'sp3'},
+    h('div',{style:{width:160}},h(Inp,{label:'Target Profit',value:target,onChange:setTarget,type:'number',step:'1'})),
+    h('div',{className:'sp2'},sels.map(function(s,i){return h('div',{key:s.id,className:'fl gap2 aic'},
+      h('div',{style:{flex:1}},i===0&&h('label',{className:'lbl'},'Selection'),h('input',{type:'text',value:s.name,onChange:function(e){setSels(function(prev){return prev.map(function(x){return x.id===s.id?Object.assign({},x,{name:e.target.value}):x;});});}})),
+      h('div',{style:{width:100}},i===0&&h('label',{className:'lbl'},'Odds'),h('input',{type:'number',step:'0.01',value:s.odds,onChange:function(e){setSels(function(prev){return prev.map(function(x){return x.id===s.id?Object.assign({},x,{odds:e.target.value}):x;});});}})),
+      h('button',{className:'btn btn-d btn-sm',style:{marginBottom:1},onClick:function(){setSels(function(prev){return prev.filter(function(x){return x.id!==s.id;});});}},h(Ico,{name:'trash',size:12})));})),
+    h(Btn,{variant:'secondary',icon:'plus',size:'sm',onClick:function(){setSels(function(prev){return prev.concat([{id:uid(),name:'Selection '+(prev.length+1),odds:''}]);});}},'Add Selection'),
+    results&&h('div',{className:'sp2'},
+      results.map(function(r){return h('div',{key:r.id,style:{display:'flex',justifyContent:'space-between',alignItems:'center',background:'#1f2937',borderRadius:8,padding:'8px 14px'}},h('span',{className:'sans',style:{fontSize:13,color:'#d1d5db'}},r.name+' @ '+r.odds),h('span',{className:'font-mono font-bold text-white'},fmt(r.stake,p.currency)));}),
+      h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',background:'#2e1065',border:'1px solid #4c1d95',borderRadius:8,padding:'8px 14px'}},h('span',{className:'sans font-bold',style:{fontSize:13,color:'#c084fc'}},'Total Staked'),h('span',{className:'font-mono font-bold',style:{color:'#c084fc'}},fmt(results.reduce(function(a,r){return a+r.stake;},0),p.currency)))));
+}
+function CalcsPage(p){
+  var _a=useState('matched');var tab=_a[0],setTab=_a[1];
+  var tabs=[{id:'matched',label:'Matched'},{id:'freebet',label:'Free Bet'},{id:'eachway',label:'Each-Way'},{id:'dutch',label:'Dutch'}];
+  return h('div',{className:'fade'},
+    h('div',{className:'tbr',style:{marginBottom:16}},tabs.map(function(t){return h('button',{key:t.id,className:'tbb'+(tab===t.id?' act':''),onClick:function(){setTab(t.id);}},t.label);})),
+    tab==='matched'&&h(MatchCalc,{commission:p.commission,currency:p.currency}),
+    tab==='freebet'&&h(FBCalc,{commission:p.commission,currency:p.currency}),
+    tab==='eachway'&&h(EWCalc,{commission:p.commission,currency:p.currency}),
+    tab==='dutch'&&h(DutchCalc,{currency:p.currency}));
+}
+
+// ── SETTINGS
+function SettingsPage(p){
+  var settings=p.settings,setSettings=p.setSettings,accounts=p.accounts,txns=p.txns,bets=p.bets,onImport=p.onImport;
+  var _a=useState(null);var imp=_a[0],setImp=_a[1];
+  function s(k){return function(v){setSettings(function(prev){var n=Object.assign({},prev);n[k]=v;return n;});};}
+  function exportJSON(){var blob=new Blob([JSON.stringify({accounts:accounts,txns:txns,bets:bets,settings:settings},null,2)],{type:'application/json'});var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download='mbtracker-backup.json';a.click();URL.revokeObjectURL(u);}
+  function handleFile(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{setImp(JSON.parse(ev.target.result));}catch(err){alert('Invalid JSON file.');}};r.readAsText(f);}
+  function clearAll(){if(!confirm('Clear ALL data and reload with demo data?'))return;localStorage.removeItem(SK);location.reload();}
+  return h('div',{className:'sp4 fade',style:{maxWidth:520}},
+    h('div',{className:'card p-5'},
+      h('div',{className:'sans font-bold',style:{fontSize:14,color:'#d1d5db',marginBottom:12}},'General Settings'),
+      h('div',{className:'sp3'},h('div',{style:{width:120}},h(Inp,{label:'Currency Symbol',value:settings.currency,onChange:s('currency')})),h('div',{style:{width:220}},h(Inp,{label:'Default Commission (%)',value:settings.commission,onChange:function(v){s('commission')(parseFloat(v)||0);},type:'number',step:'0.1'})))),
+    h('div',{className:'card p-5'},
+      h('div',{className:'sans font-bold',style:{fontSize:14,color:'#d1d5db',marginBottom:12}},'Data & Backup'),
+      h('div',{className:'sp4'},
+        h('div',null,h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',marginBottom:8}},'Export full backup — use to transfer data between devices'),h(Btn,{icon:'download',variant:'secondary',onClick:exportJSON},'Export JSON Backup')),
+        h('div',null,h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',marginBottom:8}},'Import from a previous JSON backup'),
+          h('label',{style:{display:'inline-flex',alignItems:'center',gap:8,padding:'7px 14px',background:'#1f2937',border:'1px solid #374151',borderRadius:8,cursor:'pointer',fontSize:13,color:'#e5e7eb',fontFamily:'DM Sans,system-ui,sans-serif'}},
+            h(Ico,{name:'upload',size:14}),'Choose JSON file',h('input',{type:'file',accept:'.json',onChange:handleFile,style:{display:'none'}}))),
+        imp&&h('div',{className:'wbox'},
+          h('div',{className:'sans font-bold',style:{fontSize:13,color:'#fbbf24',marginBottom:4}},'Ready to import'),
+          h('div',{className:'sans',style:{fontSize:12,color:'#d1d5db',marginBottom:10}},(imp.accounts?imp.accounts.length:0)+' accounts · '+(imp.txns?imp.txns.length:0)+' transactions · '+(imp.bets?imp.bets.length:0)+' bets'),
+          h('div',{className:'fl gap2'},h(Btn,{size:'sm',onClick:function(){onImport(imp);setImp(null);}},'Confirm Import'),h(Btn,{variant:'secondary',size:'sm',onClick:function(){setImp(null);}},'Cancel'))),
+        h('div',{style:{borderTop:'1px solid #1f2937',paddingTop:16}},h('div',{className:'sans',style:{fontSize:11,color:'#6b7280',marginBottom:8}},'Danger zone'),h(Btn,{variant:'danger',icon:'trash',size:'sm',onClick:clearAll},'Clear All Data & Reset')))),
+    h('div',{className:'card p-5'},
+      h('div',{className:'sans font-bold',style:{fontSize:14,color:'#d1d5db',marginBottom:12}},'Summary'),
+      h('div',{className:'g3',style:{textAlign:'center'}},
+        [{l:'Accounts',v:accounts.length},{l:'Total Bets',v:bets.length},{l:'Transactions',v:txns.length}].map(function(x){return h('div',{key:x.l},h('div',{className:'font-bold text-white',style:{fontSize:24}},x.v),h('div',{className:'sans',style:{fontSize:12,color:'#6b7280'}},x.l));}))),
+    h('div',{className:'snote'},h('span',{style:{fontWeight:600,color:'#a78bfa'}},'Auto-save active. '),'Data is stored in your browser\'s localStorage and persists between sessions. Use Export JSON to copy to another device.'));
+}
+
+// ── ROOT APP
+function App(){
+  var init=useMemo(function(){var saved=loadSt();if(saved)return saved;var seed=buildSeed();return{accounts:seed.accounts,txns:seed.txns,bets:seed.bets,settings:{currency:'£',commission:2}};},[]);
+  var _a=useState(init.accounts);var accounts=_a[0],setAccounts=_a[1];
+  var _b=useState(init.txns);var txns=_b[0],setTxns=_b[1];
+  var _c=useState(init.bets);var bets=_c[0],setBets=_c[1];
+  var _d=useState(init.settings);var settings=_d[0],setSettings=_d[1];
+  var _e=useState('dashboard');var page=_e[0],setPage=_e[1];
+  var _f=useState(null);var focusAcct=_f[0],setFocusAcct=_f[1];
+  var _g=useState(true);var saved=_g[0],setSaved=_g[1];
+  var timer=useRef(null);
+  useEffect(function(){
+    setSaved(false);
+    if(timer.current)clearTimeout(timer.current);
+    timer.current=setTimeout(function(){saveSt({accounts:accounts,txns:txns,bets:bets,settings:settings});setSaved(true);},900);
+    return function(){if(timer.current)clearTimeout(timer.current);};
+  },[accounts,txns,bets,settings]);
+
+  function nav(pg,extra){if(pg==='accounts'&&extra)setFocusAcct(extra);setPage(pg);}
+  function imp(data){if(data.accounts)setAccounts(data.accounts);if(data.txns)setTxns(data.txns);if(data.bets)setBets(data.bets);if(data.settings)setSettings(data.settings);setPage('dashboard');}
+  var total=accounts.reduce(function(a,b){return a+b.balance;},0);
+  var openCount=bets.filter(function(b){return b.status==='open';}).length;
+  var navItems=[{id:'dashboard',label:'Dashboard',icon:'dashboard'},{id:'bets',label:'Bets',icon:'bets'},{id:'accounts',label:'Accounts',icon:'accounts'},{id:'calculators',label:'Calculators',icon:'calculator'},{id:'settings',label:'Settings',icon:'settings'}];
+
+  return h('div',null,
+    h('header',{className:'nav-top'},
+      h('div',{className:'ntinner'},
+        h('div',{className:'fl aic gap2'},
+          h('div',{style:{width:28,height:28,background:'#7c3aed',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}},h(Ico,{name:'trending',size:14,color:'#fff'})),
+          h('span',{className:'sans font-bold text-white',style:{fontSize:14}},'MBTracker'),
+          h('span',{className:'sans',style:{fontSize:11,color:'#4b5563'}},'Pro'),
+          h('div',{className:'si',style:{color:saved?'#4ade80':'#6b7280'}},
+            h(Ico,{name:saved?'check':'save',size:11,color:saved?'#4ade80':'#6b7280'}),saved?'Saved':'Saving…')),
+        h('nav',{className:'ndesk'},navItems.map(function(n){return h('button',{key:n.id,className:'ndb'+(page===n.id?' act':''),onClick:function(){setPage(n.id);}},h(Ico,{name:n.icon,size:13}),n.label,n.id==='bets'&&openCount>0&&h('span',{className:'nbdot'},openCount));})),
+        h('div',{className:'fl aic',style:{gap:8}},
+          h('span',{className:'font-mono font-bold',style:{fontSize:15,color:total>=0?'#fff':'#f87171'}},fmt(total,settings.currency))))),
+    h('div',{className:'main'},
+      page==='dashboard'&&h(Dashboard,{accounts:accounts,bets:bets,txns:txns,currency:settings.currency,onNavigate:nav}),
+      page==='bets'&&h(BetsPage,{bets:bets,accounts:accounts,txns:txns,setTxns:setTxns,setBets:setBets,setAccounts:setAccounts,commission:settings.commission,currency:settings.currency}),
+      page==='accounts'&&h(AccountsPage,{accounts:accounts,setAccounts:setAccounts,txns:txns,setTxns:setTxns,currency:settings.currency,focusId:focusAcct,setFocusId:setFocusAcct}),
+      page==='calculators'&&h(CalcsPage,{commission:settings.commission,currency:settings.currency}),
+      page==='settings'&&h(SettingsPage,{settings:settings,setSettings:setSettings,accounts:accounts,txns:txns,bets:bets,onImport:imp})),
+    h('nav',{className:'nmob'},navItems.map(function(n){return h('button',{key:n.id,className:'nmb'+(page===n.id?' act':''),onClick:function(){setPage(n.id);}},
+      h(Ico,{name:n.icon,size:18,color:page===n.id?'#a78bfa':'#6b7280'}),
+      h('span',null,n.label),
+      n.id==='bets'&&openCount>0&&h('span',{className:'nbdot'},openCount));})));
+}
+
+RD.createRoot(document.getElementById('app')).render(h(App,null));
+</script>
+</body>
+</html>
